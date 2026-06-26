@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Submit Complaint</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+  <style>
+    body { background: #f1f5f9; min-height: 100vh; }
+    .navbar-brand { font-weight: 700; font-size: 1.2rem; }
+    .main-card {
+      background: white; border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.08);
+      padding: 2.5rem; max-width: 700px; margin: 3rem auto;
+    }
+    .form-label { font-weight: 600; color: #374151; }
+    .form-control:focus { border-color: #2563EB; box-shadow: 0 0 0 .2rem rgba(37,99,235,.2); }
+    .btn-submit {
+      background: linear-gradient(135deg, #2563EB, #7C3AED);
+      border: none; color: white; padding: .7rem 2rem;
+      border-radius: 10px; font-weight: 600; font-size: 1rem;
+    }
+    .btn-submit:hover { opacity: .9; color: white; }
+    .result-card {
+      background: #f8fafc; border-left: 4px solid #2563EB;
+      border-radius: 12px; padding: 1.5rem; margin-top: 1.5rem;
+    }
+    .result-card.urgent  { border-left-color: #DC2626; background: #fff5f5; }
+    .result-card.medium  { border-left-color: #D97706; background: #fffbeb; }
+    .result-card.low     { border-left-color: #059669; background: #f0fdf4; }
+    .next-badge {
+      display: inline-flex; align-items: center; gap: .4rem;
+      padding: .5rem 1rem; border-radius: 8px; font-size: .9rem; font-weight: 500;
+    }
+    .badge-urgent { background: #fee2e2; color: #DC2626; }
+    .badge-medium { background: #fef3c7; color: #92400e; }
+    .badge-low    { background: #d1fae5; color: #065f46; }
+    textarea { resize: vertical; }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-dark" style="background: linear-gradient(135deg,#1e3a5f,#2563EB);">
+  <div class="container">
+    <span class="navbar-brand"><i class="bi bi-clipboard2-check me-2"></i>AI Complaint Analyzer</span>
+    <a href="/logout" class="btn btn-outline-light btn-sm">
+      <i class="bi bi-box-arrow-right me-1"></i>Logout
+    </a>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="main-card">
+    <h4 class="fw-bold mb-1"><i class="bi bi-chat-left-text-fill text-primary me-2"></i>Submit a Complaint</h4>
+    <p class="text-muted mb-4">Our AI will analyze your complaint and reply instantly.</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <form method="POST">
+      <div class="mb-3">
+        <label class="form-label">Your Full Name</label>
+        <input type="text" name="name" class="form-control" placeholder="e.g. Amina Khan" required/>
+      </div>
+      <div class="mb-4">
+        <label class="form-label">Describe Your Complaint</label>
+        <textarea name="complaint" class="form-control" rows="5"
+                  placeholder="Tell us what went wrong in detail..." required></textarea>
+      </div>
+      <button type="submit" class="btn btn-submit">
+        <i class="bi bi-send-fill me-2"></i>Submit Complaint
+      </button>
+    </form>
+
+    {% if result %}
+    <hr class="my-4"/>
+
+    <div class="alert alert-success d-flex align-items-center gap-2">
+      <i class="bi bi-check-circle-fill fs-5"></i>
+      <strong>Your complaint has been successfully submitted!</strong>
+    </div>
+
+    <h6 class="fw-bold mt-3 mb-2"><i class="bi bi-robot me-2 text-primary"></i>Our Response to You</h6>
+    <div class="result-card {% if result.priority == 'High' %}urgent{% elif result.priority == 'Medium' %}medium{% else %}low{% endif %}">
+      <p class="mb-0" style="line-height:1.7;">{{ result.reply }}</p>
+    </div>
+
+    <h6 class="fw-bold mt-4 mb-2"><i class="bi bi-arrow-right-circle me-2"></i>What Happens Next?</h6>
+    {% if result.priority == "High" %}
+      <span class="next-badge badge-urgent">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        Your case is marked <strong>urgent</strong> — an officer has been alerted and will contact you very soon.
+      </span>
+    {% elif result.priority == "Medium" %}
+      <span class="next-badge badge-medium">
+        <i class="bi bi-clock-fill"></i>
+        Your complaint is under review. Our team will follow up within 24–48 hours.
+      </span>
+    {% else %}
+      <span class="next-badge badge-low">
+        <i class="bi bi-envelope-check-fill"></i>
+        Your feedback has been logged. We will address it in our next review cycle.
+      </span>
+    {% endif %}
+    {% endif %}
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
